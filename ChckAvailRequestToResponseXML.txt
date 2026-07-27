@@ -128,9 +128,9 @@ OBJECT Codeunit 50010 ChckAvailRequestToResponseXML
         NameTable := XmlDoc.NameTable;
         XmlNsMgr := XmlNsMgr.XmlNamespaceManager(NameTable);
       //Register XML namespaces for XPath queries
-        XmlNsMgr.AddNamespace('d', 'http://www.smartequip.com/supplierapi');
-        XmlNsMgr.AddNamespace('h', 'http://www.smartequip.com/supplierapi/header');
-        XmlNsMgr.AddNamespace('i', 'http://www.smartequip.com/supplierapi/item');
+        XmlNsMgr.AddNamespace('d', 'http://example.com/supplierapi');
+        XmlNsMgr.AddNamespace('h', 'http://example.com/supplierapi');
+        XmlNsMgr.AddNamespace('i', 'http://example.com/supplierapi');
 
         Header.INIT;
       //Read header values
