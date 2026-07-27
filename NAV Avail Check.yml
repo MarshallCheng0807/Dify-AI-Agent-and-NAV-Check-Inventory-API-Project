@@ -294,10 +294,10 @@ workflow:
               http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"\
               urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n\
               \    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n\
-              <Request xmlns=\"http://www.smartequip.com/supplierapi\"\n         xmlns:h=\"\
-              http://www.smartequip.com/supplierapi/header\"\n         xmlns:i=\"\
-              http://www.smartequip.com/supplierapi/item\">\n\n  <h:UUID>12345</h:UUID>\n\
-              \  <h:userName>WEBUSER01</h:userName>\n  <h:language>EN</h:language>\n\
+              <Request xmlns=\"http://example.com/supplierapi\"\n         xmlns:h=\"\
+              http://example.com/supplierapi\"\n         xmlns:i=\"\
+              http://example.com/supplierapi\">\n\n  <h:UUID>12345</h:UUID>\n\
+              \  <h:userName>${NAV_USERNAME}</h:userName>\n  <h:language>EN</h:language>\n\
               \n  <i:item>\n    <i:itemNumber>{{#1784209459945.item_number#}}</i:itemNumber>\n\
               \    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n\
               \    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n\
@@ -309,7 +309,7 @@ workflow:
 
           SOAPAction:urn:microsoft-dynamics-schemas/codeunit/CheckAvailability
 
-          Authorization:Basic V0VCVVNFUjAxOkFTQ2ptbDloTHVKK1VHNllJT0JZMklhT2VHQno0ZDREN1BiZE51dnhnSWs9'
+          Authorization:Basic ${NAV_AUTH_TOKEN}
         method: POST
         params: ''
         retry_config:
@@ -324,7 +324,7 @@ workflow:
           max_write_timeout: 0
         title: HTTP Request
         type: http-request
-        url: http://wdbsvnavdev02.dyn.corp:8147/WinWebTier01/WS/CRONUS%20Canada%2C%20Inc./Codeunit/CheckAvailability
+        url: ${NAV_SOAP_ENDPOINT}
         variables: []
       height: 170
       id: '1784145873379'
@@ -368,7 +368,7 @@ workflow:
           completion_params:
             temperature: 0.5
           mode: chat
-          name: ecorubberllm-c
+          name: gpt-model
           provider: langgenius/openai_api_compatible/openai_api_compatible
         parameters:
         - description: The item number requested by the user.
