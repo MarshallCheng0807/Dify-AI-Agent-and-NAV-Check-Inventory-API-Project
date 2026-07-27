@@ -1,0 +1,376 @@
+OBJECT Codeunit 50010 ChckAvailRequestToResponseXML
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/21/26;
+    Time=11:18:49 AM;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            //for NAV testing manually
+            BEGIN
+              ImportFromFile;
+            END;
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      Header@1000000000 : Record 50105;
+      Line@1000000001 : Record 50106;
+      XmlDoc@1000000002 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      XmlNode@1000000003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      XmlNodeList@1000000004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeList";
+      Root@1000000005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlElement";
+      Elem@1000000006 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlElement";
+      ItemEl@1000000007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlElement";
+      i@1000000008 : Integer;
+      TempText@1000000009 : Text[250];
+      InFile@1000000010 : File;
+      InStr@1000000011 : InStream;
+      RequestText@1000000012 : Text;
+      ResponseText@1000000013 : Text;
+      XmlNsMgr@1000000014 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNamespaceManager";
+      NameTable@1000000015 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNameTable";
+      QtyText@1000000016 : Text;
+      Request@1000000017 : Text;
+      Response@1000000018 : Text;
+      FileName@1000000019 : Text;
+      ItemRec@1000000020 : Record 27;
+
+    LOCAL PROCEDURE ImportFromFile@1000000005();
+    BEGIN
+      //Let user choose XML
+      BEGIN
+      //load selected XML file instream
+        IF NOT UPLOADINTOSTREAM(
+            'Select XML File',
+            '',
+            'XML Files (*.xml)|*.xml',
+            FileName,
+            InStr) THEN
+          EXIT;
+        //convert to text for XML Processing
+        InStr.READTEXT(Request);
+        //call processing function to get response XML
+        Response := RunCheckAvailability(Request);
+        //display XML response to user
+        MESSAGE('Response XML:\n%1', Response);
+      END;
+    END;
+
+    LOCAL PROCEDURE RunFromStream@1000000009(InStr@1000000000 : InStream) ResponseText : Text;
+    BEGIN
+      //converts stream into text
+      BEGIN
+        InStr.READTEXT(TempText);
+        ResponseText := RunCheckAvailability(TempText);
+      END;
+    END;
+
+    LOCAL PROCEDURE RunCheckAvailabilityBigText@1000000011(VAR RequestBig@1000000000 : BigText;VAR ResponseBig@1000000001 : BigText);
+    BEGIN
+      //Handle large XML files
+      BEGIN
+      //Bigtext-> Text
+        RequestBig.GETSUBTEXT(TempText,1);
+
+        TempText := RunCheckAvailability(TempText);
+
+        CLEAR(ResponseBig);
+      //convert back into bigtext
+        ResponseBig.ADDTEXT(TempText);
+      END;
+    END;
+
+    PROCEDURE RunCheckAvailability@1000000000(RequestText@1000000000 : Text) ResponseText : Text;
+    BEGIN
+      //main function
+      BEGIN
+
+      //Ensure request XML is provided
+        IF RequestText = '' THEN
+          ERROR('Request XML is empty.');
+        //clear old data
+        ClearStaging;
+        //Parse XML into staging tables
+        ParseRequestXML(RequestText);
+        //Process business logic
+        ProcessLines;
+        //Response XML
+        ResponseText := BuildResponseXML;
+
+      END;
+    END;
+
+    LOCAL PROCEDURE ClearStaging@1000000001();
+    BEGIN
+      BEGIN
+      //clear previous staging tables
+        Header.DELETEALL;
+        Line.DELETEALL;
+      END;
+    END;
+
+    LOCAL PROCEDURE ParseRequestXML@1000000002(XMLText@1000000000 : Text);
+    BEGIN
+
+      BEGIN
+        // Load XML
+        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc.LoadXml(XMLText);
+
+
+        NameTable := XmlDoc.NameTable;
+        XmlNsMgr := XmlNsMgr.XmlNamespaceManager(NameTable);
+      //Register XML namespaces for XPath queries
+        XmlNsMgr.AddNamespace('d', 'http://www.smartequip.com/supplierapi');
+        XmlNsMgr.AddNamespace('h', 'http://www.smartequip.com/supplierapi/header');
+        XmlNsMgr.AddNamespace('i', 'http://www.smartequip.com/supplierapi/item');
+
+        Header.INIT;
+      //Read header values
+        XmlNode := XmlDoc.SelectSingleNode('//h:UUID', XmlNsMgr);
+        IF NOT ISNULL(XmlNode) THEN
+          Header."Session Token" := XmlNode.InnerText;
+
+        XmlNode := XmlDoc.SelectSingleNode('//h:userName', XmlNsMgr);
+        IF NOT ISNULL(XmlNode) THEN
+          Header."User ID" := XmlNode.InnerText;
+
+        XmlNode := XmlDoc.SelectSingleNode('//h:language', XmlNsMgr);
+        IF NOT ISNULL(XmlNode) THEN
+          Header."Language Code" := XmlNode.InnerText;
+        //Insert Header record for request
+        Header.INSERT(TRUE);
+
+
+      //Retrieve item nodes for request
+        XmlNodeList := XmlDoc.SelectNodes('//i:item', XmlNsMgr);
+
+        FOR i := 0 TO XmlNodeList.Count - 1 DO BEGIN
+          XmlNode := XmlNodeList.Item(i);
+
+          Line.INIT;
+          Line."Header Entry No." := Header."Entry No.";
+
+          // Item Number
+          IF NOT ISNULL(XmlNode.SelectSingleNode('i:itemNumber', XmlNsMgr)) THEN
+            Line."Item No." :=
+              XmlNode.SelectSingleNode('i:itemNumber', XmlNsMgr).InnerText;
+
+          // UOM
+          IF NOT ISNULL(XmlNode.SelectSingleNode('i:uom', XmlNsMgr)) THEN
+            Line."Unit of Measure" :=
+              XmlNode.SelectSingleNode('i:uom', XmlNsMgr).InnerText;
+
+          // Description
+          IF NOT ISNULL(XmlNode.SelectSingleNode('i:itemDescription', XmlNsMgr)) THEN
+            Line.Description :=
+              XmlNode.SelectSingleNode('i:itemDescription', XmlNsMgr).InnerText;
+
+          // Quantity
+          IF NOT ISNULL(XmlNode.SelectSingleNode('i:itemQuantity', XmlNsMgr)) THEN BEGIN
+            QtyText := XmlNode.SelectSingleNode('i:itemQuantity', XmlNsMgr).InnerText;
+            IF NOT EVALUATE(Line.Quantity, QtyText) THEN
+              Line.Quantity := 0;
+          END;
+
+          Line.INSERT;
+        END;
+      END;
+    END;
+
+    LOCAL PROCEDURE ProcessLines@1000000003();
+    BEGIN
+
+      // Pricing and availability (business logic)
+      BEGIN
+
+        Line.RESET;
+        Line.SETRANGE("Header Entry No.", Header."Entry No.");
+
+        IF Line.FINDSET THEN
+          REPEAT
+
+            // Try to find item in NAV
+
+      IF ItemRec.GET(Line."Item No.") THEN BEGIN
+
+        // Pull item information from NAV
+        Line.Description := ItemRec.Description;
+
+        // Pricing
+        Line."Unit Price" := ItemRec."Unit Price";
+
+        // Extended price
+        Line."Extended Price" :=
+          Line.Quantity * Line."Unit Price";
+
+        // Inventory (quantity available)
+        ItemRec.CALCFIELDS(Inventory);
+        Line."Available Quantity" := ItemRec.Inventory;
+
+      Line."Item Exists" := TRUE;
+      Line.Orderable := TRUE;
+      Line."Orderable Reason" := '';
+      //if item is blocked return orderable false due to item is blocked
+      IF ItemRec.Blocked THEN BEGIN
+          Line.Orderable := FALSE;
+          Line."Orderable Reason" := 'Item is blocked';
+      END;
+      //if item is unavailable return orderable false due to out of stock
+      IF ItemRec.Inventory <= 0 THEN BEGIN
+          Line.Orderable := FALSE;
+          Line."Orderable Reason" := 'Out of stock';
+      END;
+
+      //Use needs to order at least 1 item
+        Line."Minimum Order Qty" := 1;
+
+      END ELSE BEGIN
+        //If item number is not found in system
+        Line.Description := 'Item not found in NAV';
+        Line."Unit Price" := 0;
+        Line."Extended Price" := 0;
+        Line."Available Quantity" := 0;
+
+        Line."Item Exists" := FALSE;
+        Line.Orderable := FALSE;
+        Line."Orderable Reason" := 'Item does not exist';
+        Line."Minimum Order Qty" := 0;
+
+      END;
+            Line.MODIFY;
+
+          UNTIL Line.NEXT = 0;
+
+      END;
+    END;
+
+    LOCAL PROCEDURE BuildResponseXML@1000000004() XMLText : Text;
+    BEGIN
+
+
+      BEGIN
+
+        XmlDoc := XmlDoc.XmlDocument;
+
+        Root := XmlDoc.CreateElement('CheckAvailabilityResponse');
+        XmlDoc.AppendChild(Root);
+
+        AddNode(Root,'Status','200');
+        AddNode(Root,'Currency','USD');
+
+        Line.RESET;
+        Line.SETRANGE("Header Entry No.",Header."Entry No.");
+
+        IF Line.FINDSET THEN
+          REPEAT
+
+            ItemEl := XmlDoc.CreateElement('Item');
+
+            // Basic item info
+            AddNode(ItemEl,'ItemNumber',Line."Item No.");
+            AddNode(ItemEl,'UOM',Line."Unit of Measure");
+            AddNode(ItemEl,'ItemDescription',Line.Description);
+
+            // Availability
+            AddNode(ItemEl,'ItemAvailability',
+              DELCHR(FORMAT(Line."Available Quantity"),'=',','));
+
+            // Pricing
+            AddNode(ItemEl,'ItemListEach',
+              DELCHR(FORMAT(Line."Unit Price"),'=',','));
+
+            AddNode(ItemEl,'ItemNetEach',
+              DELCHR(FORMAT(Line."Unit Price"),'=',','));
+
+            AddNode(ItemEl,'ItemExtendedNet',
+              DELCHR(FORMAT(Line."Extended Price"),'=',','));
+
+            // Requested qty
+            AddNode(ItemEl,'ItemQuantity',
+              DELCHR(FORMAT(Line.Quantity),'=',','));
+
+            // Minimum order
+            AddNode(ItemEl,'MinimumOrderQuantity',
+              DELCHR(FORMAT(Line."Minimum Order Qty"),'=',','));
+
+            // Exists
+            IF Line."Item Exists" THEN
+              AddNode(ItemEl,'ItemExists','true')
+            ELSE
+              AddNode(ItemEl,'ItemExists','false');
+
+            // Orderable
+            IF Line.Orderable THEN
+              AddNode(ItemEl,'Orderable','true')
+            ELSE
+              AddNode(ItemEl,'Orderable','false');
+
+            AddNode(ItemEl,
+                    'OrderableReason',
+                    Line."Orderable Reason");
+            Root.AppendChild(ItemEl);
+
+          UNTIL Line.NEXT = 0;
+
+        XMLText := XmlDoc.OuterXml;
+
+      END;
+    END;
+
+    LOCAL PROCEDURE AddNode@1000000008(Parent@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlElement";Name@1000000001 : Text;Value@1000000002 : Text);
+    BEGIN
+      //helper function to create and append XML element with value
+      BEGIN
+        Elem := XmlDoc.CreateElement(Name);
+        Elem.InnerText := Value;
+        Parent.AppendChild(Elem);
+      END;
+    END;
+
+    EVENT XmlDoc@1000000002::NodeInserting@94(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    EVENT XmlDoc@1000000002::NodeInserted@95(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    EVENT XmlDoc@1000000002::NodeRemoving@96(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    EVENT XmlDoc@1000000002::NodeRemoved@97(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    EVENT XmlDoc@1000000002::NodeChanging@98(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    EVENT XmlDoc@1000000002::NodeChanged@99(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeChangedEventArgs");
+    BEGIN
+    END;
+
+    BEGIN
+    {
+      Author: Marshall Cheng
+      Purpose: Allow import directly from NAV (as an XML file) or through text (SOAP/Postman) of check availability request XML
+      Return check availablility response with pricing, availability, quantity etc. in a response XML
+      Linked to Dify AI Workflow for user to check availability using AI LLM chatbox
+      Note:
+      Currency assumed to be USD and status always works (200)
+      Item number requested is assumed to be the same as in NAV system
+      Information about the item is assumed to be the same as in NAV system (Item description, available quantity etc.)
+    }
+    END.
+  }
+}
+
