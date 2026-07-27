@@ -5,17 +5,9 @@ A small integration that connects a Microsoft Dynamics NAV (Navision) API codeun
 ## Table of Contents
 - [Features](#features)
 - [Architecture / Workflow Overview](#architecture--workflow-overview)
-- [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
 - [Local Setup & Run](#local-setup--run)
 - [Example User Questions](#example-user-questions)
-- [Sample Response (structured)](#sample-response-structured)
-- [Development Notes](#development-notes)
-- [Testing](#testing)
-- [Security](#security)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
 
 ## Features
 - Extracts item numbers from user requests using the Dify parameter-extraction step.
@@ -37,25 +29,8 @@ A small integration that connects a Microsoft Dynamics NAV (Navision) API codeun
 4. NAV SOAP returns inventory data.
 5. Dify processes the response with LLM logic to produce a concise, sanitized output and a structured JSON payload.
 
-(Consider adding a small diagram or flowchart here in /docs or the repo root.)
-
-## Prerequisites
-- Microsoft Dynamics NAV instance with a SOAP service or codeunit that exposes inventory lookup.
-- Dify account and a workflow configured for the assistant.
-- Node / Python / whatever runtime the repo uses (document exact stack here).
-- Access to repository and ability to set secrets (API keys, SOAP credentials).
-
 ## Configuration
-This repository omits secrets for security. Set the following environment variables or configuration values when you run the project:
-
-- NAV_SOAP_URL — The NAV SOAP endpoint (e.g., `https://nav.company.local/WS/Codeunit/InventoryAPI`)
-- NAV_USERNAME — SOAP auth username (if required)
-- NAV_PASSWORD — SOAP auth password (if required)
-- DIFY_API_KEY — API key to call Dify (if you call Dify from a server)
-- DIFY_WORKFLOW_ID — ID of your Dify workflow (if applicable)
-- OTHER_API_ENDPOINT — local/hosted endpoint if your codeunit is wrapped by an API gateway
-
-Add examples or .env template in the repo (e.g., `.env.example`).
+This repository omits secrets for security. Set the environment variables or configuration values when you run the project such as the endpoint URL, username, password etc.
 
 ## Example User Questions
 - What is the availability of item 1000?
