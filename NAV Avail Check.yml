@@ -1,0 +1,405 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: NAV Avail Check
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: package
+  value:
+    plugin_unique_identifier: langgenius/openai_api_compatible:0.0.5@3707a608e071efbabdbbcb69ef6fc43844624fadfd019e73f0b6103af3258e01
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 200
+        image_file_batch_limit: 10
+        image_file_size_limit: 100
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: llm-answer
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        sourceType: http-request
+        targetType: llm
+      id: 1784145873379-source-llm-target
+      selected: false
+      source: '1784145873379'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: parameter-extractor
+      id: 1784121261234-source-1784209459945-target
+      selected: false
+      source: '1784121261234'
+      sourceHandle: source
+      target: '1784209459945'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: parameter-extractor
+        targetType: http-request
+      id: 1784209459945-source-1784145873379-target
+      selected: false
+      source: '1784209459945'
+      sourceHandle: source
+      target: '1784145873379'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+      height: 73
+      id: '1784121261234'
+      position:
+        x: 1018.0077992216098
+        y: 300.6265025414196
+      positionAbsolute:
+        x: 1018.0077992216098
+        y: 300.6265025414196
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1784145873379'
+          - body
+        desc: ''
+        memory:
+          query_prompt_template: User question:{{#sys.query#}}
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+          mode: chat
+          name: ecorubberllm-c
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - id: f95053f3-3d37-453c-9b2e-5d8ac4755051
+          role: system
+          text: 'You are a NAV inventory availability assistant.
+
+
+            The following context contains a SOAP response from Microsoft Dynamics
+            NAV.
+
+
+            <context>
+
+            {{#context#}}
+
+            </context>
+
+
+            Analyze the SOAP response and answer the user''s question.
+
+
+            Extract:
+
+            - Item Number
+
+            - Item Description
+
+            -Item Unit Price
+
+            - Available Quantity
+
+            - Minimum Order Quantity
+
+            - Availability Status
+
+
+            Your ONLY purpose is to answer questions related to inventory information
+            stored in Microsoft Dynamics NAV, including:
+
+
+            - Item availability
+
+            - Stock levels
+
+            - Quantity on hand
+
+            - Pricing
+
+            - Item descriptions
+
+            - Minimum order quantities
+
+            - Availability status
+
+            - Inventory-related product information
+
+
+            STRICT RULES:
+
+
+            1. Only answer inventory-related questions.
+
+            2. If a question is not about inventory, products, stock, pricing, or
+            item availability, respond exactly:
+
+
+               "I am the Navision Inventory AI Assistant. I can only assist with inventory-related
+            inquiries such as item availability, stock levels, pricing, and product
+            information. Please provide an item number"
+
+            3.  If a question contains no numbers, meaning it is only a string, respond
+            with the same as rule number 2
+
+            4. Do not answer:
+
+               - Math questions
+
+               - General knowledge questions
+
+               - Programming questions
+
+               - Personal questions
+
+               - Weather, news, or unrelated topics
+
+
+            5. Never use your general knowledge to answer unrelated questions.
+
+
+
+
+            Provide a concise business-friendly response.'
+        - id: 8295d69f-4881-4b2f-b73f-ea8db2322826
+          role: user
+          text: ''
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: llm
+      position:
+        x: 2182.663764812698
+        y: 291
+      positionAbsolute:
+        x: 2182.663764812698
+        y: 291
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: Reply
+        type: answer
+        variables: []
+      height: 102
+      id: answer
+      position:
+        x: 2534.5157165665105
+        y: 291
+      positionAbsolute:
+        x: 2534.5157165665105
+        y: 291
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - type: text
+            value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soap:Envelope xmlns:soap=\"\
+              http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"\
+              urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n\
+              \    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n\
+              <Request xmlns=\"http://www.smartequip.com/supplierapi\"\n         xmlns:h=\"\
+              http://www.smartequip.com/supplierapi/header\"\n         xmlns:i=\"\
+              http://www.smartequip.com/supplierapi/item\">\n\n  <h:UUID>12345</h:UUID>\n\
+              \  <h:userName>WEBUSER01</h:userName>\n  <h:language>EN</h:language>\n\
+              \n  <i:item>\n    <i:itemNumber>{{#1784209459945.item_number#}}</i:itemNumber>\n\
+              \    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n\
+              \    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n\
+              \      ]]></che:requestText>\n    </che:RunCheckAvailability>\n  </soap:Body>\n\
+              </soap:Envelope>"
+          type: raw-text
+        desc: ''
+        headers: 'Content-Type:text/xml
+
+          SOAPAction:urn:microsoft-dynamics-schemas/codeunit/CheckAvailability
+
+          Authorization:Basic V0VCVVNFUjAxOkFTQ2ptbDloTHVKK1VHNllJT0JZMklhT2VHQno0ZDREN1BiZE51dnhnSWs9'
+        method: POST
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP Request
+        type: http-request
+        url: http://wdbsvnavdev02.dyn.corp:8147/WinWebTier01/WS/CRONUS%20Canada%2C%20Inc./Codeunit/CheckAvailability
+        variables: []
+      height: 170
+      id: '1784145873379'
+      position:
+        x: 1771.8615871881277
+        y: 274.0874332088874
+      positionAbsolute:
+        x: 1771.8615871881277
+        y: 274.0874332088874
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        instruction: 'Extract the item number from the user''s inventory availability
+          request.
+
+
+          Examples:
+
+
+          "What is the availability of item 1100?"
+
+          → item_number = 1100
+
+
+          "Check stock for item 2500"
+
+          → item_number = 2500
+
+
+          "Do we have item ABC123 available?"
+
+          → item_number = ABC123
+
+
+          Return only the item number.'
+        model:
+          completion_params:
+            temperature: 0.5
+          mode: chat
+          name: ecorubberllm-c
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        parameters:
+        - description: The item number requested by the user.
+          name: item_number
+          required: true
+          type: string
+        query:
+        - sys
+        - query
+        reasoning_mode: prompt
+        selected: false
+        title: Parameter Extractor
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: '1784209459945'
+      position:
+        x: 1409.8290881302596
+        y: 264.993133809825
+      positionAbsolute:
+        x: 1409.8290881302596
+        y: 264.993133809825
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -993.0645712018054
+      y: -49.402237554096814
+      zoom: 0.7964595148719256
+  rag_pipeline_variables: []
