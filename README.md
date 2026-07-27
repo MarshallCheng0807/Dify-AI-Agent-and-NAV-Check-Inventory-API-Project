@@ -57,38 +57,8 @@ This repository omits secrets for security. Set the following environment variab
 
 Add examples or .env template in the repo (e.g., `.env.example`).
 
-## Local Setup & Run
-1. Clone the repo:
-   git clone https://github.com/MarshallCheng0807/Dify-AI-Agent-and-NAV-Check-Inventory-API-Project.git
-2. Copy `.env.example` to `.env` and fill values.
-3. Install dependencies (example):
-   - Node: `npm install` or
-   - Python: `pip install -r requirements.txt`
-4. Start the app:
-   - Node: `npm start`
-   - Python: `python app.py`
-5. Trigger a sample request (see below) or connect to the chat UI.
-
-(Adjust commands to match the project stack; add exact scripts.)
-
 ## Example User Questions
 - What is the availability of item 1000?
 - Check stock for item ABC123?
 - Do we have item 2500 available?
 
-## Sample Response (structured)
-The assistant returns a friendly text response and a structured JSON payload. Example structured response:
-
-```json
-{
-  "item_number": "2500",
-  "description": "Widget Model X",
-  "unit_price": 12.50,
-  "available_quantity": 32,
-  "minimum_order_quantity": 1,
-  "availability_status": "In Stock",
-  "raw_source": {
-    "nav_response_id": "abc123",
-    "timestamp": "2026-07-27T12:00:00Z"
-  }
-}
