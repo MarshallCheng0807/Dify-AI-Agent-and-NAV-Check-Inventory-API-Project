@@ -148,7 +148,7 @@ workflow:
           completion_params:
             temperature: 0.1
           mode: chat
-          name: ecorubberllm-c
+          name: gpt_model
           provider: langgenius/openai_api_compatible/openai_api_compatible
         prompt_template:
         - id: f95053f3-3d37-453c-9b2e-5d8ac4755051
