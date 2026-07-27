@@ -85,7 +85,7 @@ The assistant returns a friendly text response and a structured JSON payload. Ex
   "description": "Widget Model X",
   "unit_price": 12.50,
   "available_quantity": 32,
-  "minimum_order_quantity": 10,
+  "minimum_order_quantity": 1,
   "availability_status": "In Stock",
   "raw_source": {
     "nav_response_id": "abc123",
