@@ -32,7 +32,7 @@
           "basic": [
             {
               "key": "username",
-              "value": "WEBUSER01",
+              "value": "<SERVICE_ACCOUNT>",
               "type": "string"
             },
             {
@@ -57,7 +57,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "\n\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n<Request xmlns=\"http://www.smartequip.com/supplierapi\"\n         xmlns:h=\"http://www.smartequip.com/supplierapi/header\"\n         xmlns:i=\"http://www.smartequip.com/supplierapi/item\">\n\n  <h:UUID>12345</h:UUID>\n  <h:userName>WEBUSER01</h:userName>\n  <h:language>EN</h:language>\n\n  <i:item>\n    <i:itemNumber>1250</i:itemNumber>\n    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n      ]]></che:requestText>\n    </che:RunCheckAvailability>\n  </soap:Body>\n</soap:Envelope>\n\n",
+          "raw": "\n\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n<Request xmlns=\"http://example.com/supplierapi"\n         xmlns:h=\"http://example.com/supplierapi"\n         xmlns:i=\"http://example.com/supplierapi">\n\n  <h:UUID>12345</h:UUID>\n  <h:userName>SERVICE_ACCOUNT</h:userName>\n  <h:language>EN</h:language>\n\n  <i:item>\n    <i:itemNumber>1250</i:itemNumber>\n    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n      ]]></che:requestText>\n    </che:RunCheckAvailability>\n  </soap:Body>\n</soap:Envelope>\n\n",
           "options": {
             "raw": {
               "language": "xml"
@@ -65,18 +65,18 @@
           }
         },
         "url": {
-          "raw": "http://wdbsvnavdev02.dyn.corp:8147/WinWebTier01/WS/CRONUS%20Canada%2C%20Inc./Codeunit/CheckAvailability",
+          "raw": "",
           "protocol": "http",
           "host": [
-            "wdbsvnavdev02",
-            "dyn",
-            "corp"
+            "example",
+            "company",
+            "com"
           ],
           "port": "8147",
           "path": [
-            "WinWebTier01",
+            "example",
             "WS",
-            "CRONUS%20Canada%2C%20Inc.",
+            "Company",
             "Codeunit",
             "CheckAvailability"
           ]
@@ -102,7 +102,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "\n\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n<Request xmlns=\"http://www.smartequip.com/supplierapi\"\n         xmlns:h=\"http://www.smartequip.com/supplierapi/header\"\n         xmlns:i=\"http://www.smartequip.com/supplierapi/item\">\n\n  <h:UUID>12345</h:UUID>\n  <h:userName>WEBUSER01</h:userName>\n  <h:language>EN</h:language>\n\n  <i:item>\n    <i:itemNumber>1100</i:itemNumber>\n    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n      ]]></che:requestText>\n    </che:RunCheckAvailability>\n  </soap:Body>\n</soap:Envelope>\n\n",
+              "raw": "\n\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n               xmlns:che=\"urn:microsoft-dynamics-schemas/codeunit/CheckAvailability\">\n  <soap:Body>\n    <che:RunCheckAvailability>\n      <che:requestText><![CDATA[\n<Request xmlns=\"http://example.com/supplierapi"\n         xmlns:h=\"http://example.com/supplierapi"\n         xmlns:i=\"http://example.com/supplierapi">\n\n  <h:UUID>12345</h:UUID>\n  <h:userName>SERVICE_ACCOUNT</h:userName>\n  <h:language>EN</h:language>\n\n  <i:item>\n    <i:itemNumber>1100</i:itemNumber>\n    <i:uom>EA</i:uom>\n    <i:itemDescription>Test Item</i:itemDescription>\n    <i:itemQuantity>4</i:itemQuantity>\n  </i:item>\n\n</Request>\n      ]]></che:requestText>\n    </che:RunCheckAvailability>\n  </soap:Body>\n</soap:Envelope>\n\n",
               "options": {
                 "raw": {
                   "language": "xml"
@@ -110,18 +110,18 @@
               }
             },
             "url": {
-              "raw": "http://wdbsvnavdev02.dyn.corp:8147/WinWebTier01/WS/CRONUS%20Canada%2C%20Inc./Codeunit/CheckAvailability",
+              "raw": "https://example.company.com/WS/Company/Codeunit/CheckAvailability"
               "protocol": "http",
               "host": [
-                "wdbsvnavdev02",
-                "dyn",
-                "corp"
+                "example",
+                "company",
+                "com"
               ],
               "port": "8147",
               "path": [
-                "WinWebTier01",
+                "example",
                 "WS",
-                "CRONUS%20Canada%2C%20Inc.",
+                "Company",
                 "Codeunit",
                 "CheckAvailability"
               ]
