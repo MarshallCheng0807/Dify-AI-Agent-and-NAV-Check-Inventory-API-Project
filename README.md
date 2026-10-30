@@ -6,7 +6,6 @@ A small integration that connects a Microsoft Dynamics NAV (Navision) API codeun
 - [Features](#features)
 - [Architecture / Workflow Overview](#architecture--workflow-overview)
 - [Configuration](#configuration)
-- [Local Setup & Run](#local-setup--run)
 - [Example User Questions](#example-user-questions)
 
 ## Features
